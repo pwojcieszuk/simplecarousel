@@ -28,7 +28,18 @@ const config: webpack.Configuration = {
       },
       {
         test: /\.(scss|css)$/,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: [
+          "style-loader",
+          {
+            loader: "css-loader",
+            options: {
+              modules: {
+                localIdentName: "[path][name]__[local]--[hash:base64:5]",
+              },
+            },
+          },
+          "sass-loader",
+        ],
       },
     ],
   },

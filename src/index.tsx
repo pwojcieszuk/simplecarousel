@@ -8,6 +8,8 @@ ReactDOM.render(
       <div>aaa</div>
       <div>bbb</div>
       <div>ccc</div>
+      <div>ddd</div>
+      <div>eee</div>
     </Carousel>
   </React.StrictMode>,
   document.getElementById("root")
