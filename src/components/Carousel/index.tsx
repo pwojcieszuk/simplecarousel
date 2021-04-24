@@ -1,166 +1,97 @@
-import React, { useEffect, useRef, useReducer, useMemo } from "react";
+import React, { useState, useMemo } from "react";
+import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
 
-const initialState = (validItemsCount: number) => ({
-  currentItem: 0,
-  resetLoop: false,
-  // useTransition: true,
-  // itemsOrder: Array(validItemsCount).fill(0),
-  // loopStarted: false,
-  // reRender: false,
-});
-
-/* eslint-disable */
-const reducer = (state: any, action: any) => {
-  switch (action.type) {
-    case "setCurrentItem":
-      return {
-        ...state,
-        currentItem: action.value.item,
-        resetLoop: action.value.resetLoop || false,
-      };
-    case "setItemsOrder":
-      return { ...state, itemsOrder: action.value };
-    // case "setUseTransition":
-    //   return { ...state, useTransition: action.value };
-    // case "reorderItems":
-    //   return {
-    //     ...state,
-    //     itemsOrder: action.value.itemsOrder,
-    //     currentItem: action.value.currentItem,
-    //   };
-    // case "startLoop":
-    //   return {
-    //     ...state,
-    //     loopStarted: true,
-    //   };
-    // case "reRender":
-    //   return {
-    //     ...state,
-    //     reRender: true,
-    //   };
-    default:
-      throw new Error();
-  }
-};
+//use switch transition based on loopState prop to slide to next component that enters the stage
 
 type Props = {
   children?: React.ReactChild | React.ReactChild[];
 };
 
-//TODO: display only 3 items - prev, current and next
-//on transition - transform, then useEffect to re-render with new set of items after the change
-//calculate proper items in separate logic
+const validItems = (children?: React.ReactChild | React.ReactChild[]) =>
+  React.Children.toArray(children).filter((child) =>
+    React.isValidElement(child)
+  );
 
-/* 
-1. stop transition
-2. reorder and transform to 0
-3. start transition
-4. transform to 1
-5. stop transition
-6. reorder back and transform to 0 
-7. start transition
+const duration = 300;
 
-*/
+const defaultStyle = {
+  transition: `transform ${duration}ms ease-in-out`,
+  // eslint-disable-next-line sonarjs/no-duplicate-string
+  transform: "translateX(0)",
+};
 
-const rotate = (arr: unknown[], count = 1) => [
-  ...arr.slice(0, arr.length - count),
-  ...Array.from({ length: count }, (_, i) => -1 - i),
-];
+const transitionStylesForward = {
+  // eslint-disable-next-line sonarjs/no-duplicate-string
+  entering: { transform: "translateX(100%)" },
+  entered: { transform: "translateX(0)" },
+  exiting: { transform: "translateX(0)" },
+  // eslint-disable-next-line sonarjs/no-duplicate-string
+  exited: { transform: "translateX(-100%)" },
+} as { [key: string]: React.CSSProperties };
+
+const transitionStylesReverse = {
+  // eslint-disable-next-line sonarjs/no-duplicate-string
+  entering: { transform: "translateX(-100%)" },
+  entered: { transform: "translateX(0)" },
+  exiting: { transform: "translateX(0)" },
+  exited: { transform: "translateX(100%)" },
+} as { [key: string]: React.CSSProperties };
 
 // eslint-disable-next-line max-lines-per-function
 const Carousel: React.FC<Props> = ({ children }) => {
-  const validItems = useMemo(
-    () =>
-      React.Children.toArray(children).filter((child) =>
-        React.isValidElement(child)
-      ),
-    [children]
+  const [currentItem, setCurrentItem] = useState(0);
+  const [inProp, setInProp] = useState(false);
+  const [transitionForward, setTransitionForward] = useState(true);
+
+  const items = validItems(children);
+  const slide = items[currentItem];
+
+  const goToPrevItem = () => (
+    setCurrentItem(currentItem > 0 ? currentItem - 1 : items.length - 1),
+    setInProp(true),
+    setTransitionForward(false)
+  );
+  const goToNextItem = () => (
+    setCurrentItem(currentItem < items.length - 1 ? currentItem + 1 : 0),
+    setInProp(true),
+    setTransitionForward(true)
   );
 
-  const validItemsCount = validItems.length;
-
-  const [state, dispatch] = useReducer(reducer, initialState(validItemsCount));
-
-  const itemsOrder = useRef(Array(validItemsCount).fill(0));
-  const useTransition = useRef(true);
-
-  const lastItem = state.currentItem + 1 === validItemsCount;
-
+  //TODO move through rest of the slides
   const goToItem = (itemIndex: number) => () =>
-    dispatch({ type: "setCurrentItem", value: { item: itemIndex } });
-
-  const goToNextItem = () =>
-    lastItem
-      ? goToNextItemInfinite()
-      : dispatch({
-          type: "setCurrentItem",
-          value: { item: state.currentItem + 1 },
-        });
-
-  useEffect(() => {
-    if (!state.resetLoop) {
-      useTransition.current = true;
-      return;
-    }
-    itemsOrder.current = Array(validItemsCount).fill(0);
-    useTransition.current = false;
-
-    setTimeout(
-      () =>
-        dispatch({
-          type: "setCurrentItem",
-          value: { item: 0, resetLoop: false },
-        }),
-      1400
-    );
-  }, [state.resetLoop]);
-
-  const goToNextItemInfinite = () => {
-    useTransition.current = false;
-    itemsOrder.current = rotate(itemsOrder.current, 1);
-    dispatch({
-      type: "setCurrentItem",
-      value: { item: 0 },
-    });
-
-    setTimeout(() => {
-      useTransition.current = true;
-      dispatch({
-        type: "setCurrentItem",
-        value: { item: 1, resetLoop: true },
-      });
-    }, 0);
-  };
-
-  const goToPrevItem = () =>
-    dispatch({
-      type: "setCurrentItem",
-      value: { item: state.currentItem > 0 ? state.currentItem - 1 : 0 },
-    });
-
-  const getSlidesOffset = (itemIndex: number) => `-${itemIndex * 100}%`;
+    itemIndex !== currentItem &&
+    (setCurrentItem(itemIndex),
+    setInProp(true),
+    setTransitionForward(itemIndex > currentItem));
 
   return (
     <div className={styles.carouselContainer}>
-      <div className={styles.carouselSlider}>
-        {validItems.map((item, itemIndex) =>
-          React.cloneElement(item as React.ReactElement, {
-            className: styles.carouselItem,
-            style: {
-              transform: `translateX(${getSlidesOffset(state.currentItem)})`,
-              ...(useTransition.current && {
-                transition: "transform 1600ms",
-              }),
-              order: itemsOrder.current[itemIndex],
-            },
-          })
-        )}
-      </div>
+      <SwitchTransition>
+        <Transition
+          key={currentItem}
+          in={inProp}
+          timeout={duration}
+          className={styles.carouselSlider}
+        >
+          {(state: string) => (
+            <div
+              style={{
+                ...defaultStyle,
+                ...(transitionForward
+                  ? transitionStylesForward
+                  : transitionStylesReverse)[state],
+              }}
+            >
+              {slide}
+            </div>
+          )}
+        </Transition>
+      </SwitchTransition>
       <div className={styles.carouselBtns}>
         <button onClick={goToPrevItem}>Prev</button>
-        {validItems.map((child, childIndex) => (
-          <button key={childIndex} onClick={goToItem(childIndex)} />
+        {Object.keys(items).map((childIndex) => (
+          <button key={childIndex} onClick={goToItem(parseInt(childIndex))} />
         ))}
         <button onClick={goToNextItem}>Next</button>
       </div>
