@@ -41,11 +41,18 @@ const config: webpack.Configuration = {
           "sass-loader",
         ],
       },
+      {
+        test: /\.(png|jpe?g|svg)$/,
+        use: {
+          loader: "url-loader",
+        },
+      },
     ],
   },
   resolve: {
     alias: {
       components: path.resolve(__dirname, "../src/components/"),
+      assets: path.resolve(__dirname, "../assets/"),
     },
     extensions: [".tsx", ".ts", ".js"],
   },
