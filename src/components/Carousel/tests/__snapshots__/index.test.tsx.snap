@@ -1,3 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Carousel Renders 1`] = `<Fragment />`;
+exports[`Carousel Renders 1`] = `
+<div
+  className="carouselContainer"
+>
+  <SwitchTransition
+    mode="out-in"
+  >
+    <Transition
+      appear={false}
+      className="carouselSlider"
+      enter={true}
+      exit={true}
+      in={false}
+      key="0"
+      mountOnEnter={false}
+      onEnter={[Function]}
+      onEntered={[Function]}
+      onEntering={[Function]}
+      onExit={[Function]}
+      onExited={[Function]}
+      onExiting={[Function]}
+      timeout={300}
+      unmountOnExit={false}
+    >
+      <Component />
+    </Transition>
+  </SwitchTransition>
+  <div
+    className="carouselBtns"
+  >
+    <button
+      onClick={[Function]}
+    >
+      Prev
+    </button>
+    <button
+      onClick={[Function]}
+    >
+      Next
+    </button>
+  </div>
+</div>
+`;

@@ -4,7 +4,7 @@ import Carousel from "components/Carousel";
 
 describe("Carousel", () => {
   it("Renders", () => {
-    const wrapper = shallow(<Carousel />);
+    const wrapper = shallow(<Carousel>some child</Carousel>);
     expect(wrapper).toMatchSnapshot();
   });
 });

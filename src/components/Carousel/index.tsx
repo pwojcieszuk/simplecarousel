@@ -1,73 +1,46 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
+import {
+  defaultStyle,
+  transitionStylesForward,
+  transitionStylesReverse,
+} from "components/Carousel/constants";
+
+import prepareSlides from "components/Carousel/logic/prepareSlides";
+import calculateNextItem from "components/Carousel/logic/calculateNextItem";
+import calculatePrevItem from "components/Carousel/logic/calculatePrevItem";
 
 type Props = {
-  children?: React.ReactChild | React.ReactChild[];
+  children: React.ReactChild | React.ReactChild[];
+  step?: number;
+  duration?: number;
 };
 
-const validItems = (children?: React.ReactChild | React.ReactChild[]) =>
+const validItems = (children: React.ReactChild | React.ReactChild[]) =>
   React.Children.toArray(children).filter((child) =>
     React.isValidElement(child)
   );
 
-const duration = 300;
-
-const defaultStyle = {
-  transition: `transform ${duration}ms ease-in-out`,
-  // eslint-disable-next-line sonarjs/no-duplicate-string
-  transform: "translateX(0)",
-};
-
-const transitionStylesForward = {
-  // eslint-disable-next-line sonarjs/no-duplicate-string
-  entering: { transform: "translateX(100%)" },
-  entered: { transform: "translateX(0)" },
-  exiting: { transform: "translateX(0)" },
-  // eslint-disable-next-line sonarjs/no-duplicate-string
-  exited: { transform: "translateX(-100%)" },
-} as { [key: string]: React.CSSProperties };
-
-const transitionStylesReverse = {
-  // eslint-disable-next-line sonarjs/no-duplicate-string
-  entering: { transform: "translateX(-100%)" },
-  entered: { transform: "translateX(0)" },
-  exiting: { transform: "translateX(0)" },
-  exited: { transform: "translateX(100%)" },
-} as { [key: string]: React.CSSProperties };
-
-/* eslint-disable */
-const Carousel: React.FC<Props> = ({ children }) => {
+// eslint-disable-next-line max-lines-per-function
+const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
   const [currentItem, setCurrentItem] = useState(0);
   const [inProp, setInProp] = useState(false);
   const [transitionForward, setTransitionForward] = useState(true);
 
-  const items = validItems(children);
+  const items = useMemo<
+    React.ReactChild[] | React.ReactFragment[] | React.ReactPortal[]
+  >(() => validItems(children), [children]);
 
-  const step = 4;
-
-  const slides = [
-    ...items.slice(currentItem, currentItem + step),
-    ...(currentItem + step > items.length - 1
-      ? items.slice(0, currentItem - items.length + step)
-      : []),
-  ];
+  const slides = prepareSlides(items, currentItem, step);
 
   const goToPrevItem = () => (
-    setCurrentItem(
-      currentItem - step >= 0
-        ? currentItem - step
-        : items.length + (currentItem - step)
-    ),
+    setCurrentItem(calculateNextItem(currentItem, step, items.length)),
     setInProp(true),
     setTransitionForward(false)
   );
   const goToNextItem = () => (
-    setCurrentItem(
-      currentItem + step < items.length
-        ? currentItem + step
-        : currentItem - items.length + step
-    ),
+    setCurrentItem(calculatePrevItem(currentItem, step, items.length)),
     setInProp(true),
     setTransitionForward(true)
   );
@@ -91,7 +64,7 @@ const Carousel: React.FC<Props> = ({ children }) => {
             <div
               className={styles.carouselItem}
               style={{
-                ...defaultStyle,
+                ...defaultStyle(duration),
                 ...(transitionForward
                   ? transitionStylesForward
                   : transitionStylesReverse)[state],
