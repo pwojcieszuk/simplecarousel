@@ -1,8 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
-
-//use switch transition based on loopState prop to slide to next component that enters the stage
 
 type Props = {
   children?: React.ReactChild | React.ReactChild[];
@@ -38,27 +36,42 @@ const transitionStylesReverse = {
   exited: { transform: "translateX(100%)" },
 } as { [key: string]: React.CSSProperties };
 
-// eslint-disable-next-line max-lines-per-function
+/* eslint-disable */
 const Carousel: React.FC<Props> = ({ children }) => {
   const [currentItem, setCurrentItem] = useState(0);
   const [inProp, setInProp] = useState(false);
   const [transitionForward, setTransitionForward] = useState(true);
 
   const items = validItems(children);
-  const slide = items[currentItem];
+
+  const step = 4;
+
+  const slides = [
+    ...items.slice(currentItem, currentItem + step),
+    ...(currentItem + step > items.length - 1
+      ? items.slice(0, currentItem - items.length + step)
+      : []),
+  ];
 
   const goToPrevItem = () => (
-    setCurrentItem(currentItem > 0 ? currentItem - 1 : items.length - 1),
+    setCurrentItem(
+      currentItem - step >= 0
+        ? currentItem - step
+        : items.length + (currentItem - step)
+    ),
     setInProp(true),
     setTransitionForward(false)
   );
   const goToNextItem = () => (
-    setCurrentItem(currentItem < items.length - 1 ? currentItem + 1 : 0),
+    setCurrentItem(
+      currentItem + step < items.length
+        ? currentItem + step
+        : currentItem - items.length + step
+    ),
     setInProp(true),
     setTransitionForward(true)
   );
 
-  //TODO move through rest of the slides
   const goToItem = (itemIndex: number) => () =>
     itemIndex !== currentItem &&
     (setCurrentItem(itemIndex),
@@ -76,6 +89,7 @@ const Carousel: React.FC<Props> = ({ children }) => {
         >
           {(state: string) => (
             <div
+              className={styles.carouselItem}
               style={{
                 ...defaultStyle,
                 ...(transitionForward
@@ -83,7 +97,7 @@ const Carousel: React.FC<Props> = ({ children }) => {
                   : transitionStylesReverse)[state],
               }}
             >
-              {slide}
+              {slides.map((slide) => slide)}
             </div>
           )}
         </Transition>
