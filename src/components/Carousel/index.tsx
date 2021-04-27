@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useReducer } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
 import {
@@ -11,45 +11,77 @@ import prepareSlides from "components/Carousel/logic/prepareSlides";
 import calculateNextItem from "components/Carousel/logic/calculateNextItem";
 import calculatePrevItem from "components/Carousel/logic/calculatePrevItem";
 
-type Props = {
-  children: React.ReactChild | React.ReactChild[];
-  step?: number;
-  duration?: number;
+import validItems from "components/Carousel/utils/validItems";
+
+import Controls from "components/Carousel/Controls";
+
+import {
+  Action,
+  CarouselProps as Props,
+  CarouselState as State,
+  CarouselChildren as Children,
+} from "components/Carousel/logic/types";
+
+const initState = ({
+  itemsLength,
+  step,
+}: {
+  itemsLength: number;
+  step: number;
+}) => ({
+  currentItem: 0,
+  inProp: false,
+  transitionForward: true,
+  itemsLength,
+  step,
+});
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case "goToPrevItem":
+      return {
+        ...state,
+        inProp: true,
+        transitionForward: false,
+        currentItem: calculatePrevItem(
+          state.currentItem,
+          state.step,
+          state.itemsLength
+        ),
+      };
+    case "goToNextItem":
+      return {
+        ...state,
+        inProp: true,
+        transitionForward: true,
+        currentItem: calculateNextItem(
+          state.currentItem,
+          state.step,
+          state.itemsLength
+        ),
+      };
+    case "goToItem":
+      return !action.itemIndex || action.itemIndex === state.currentItem
+        ? { ...state }
+        : {
+            ...state,
+            inProp: true,
+            transitionForward: action.itemIndex > state.currentItem,
+            currentItem: action.itemIndex,
+          };
+    default:
+      throw new Error();
+  }
 };
 
-const validItems = (children: React.ReactChild | React.ReactChild[]) =>
-  React.Children.toArray(children).filter((child) =>
-    React.isValidElement(child)
-  );
-
-// eslint-disable-next-line max-lines-per-function
 const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
-  const [currentItem, setCurrentItem] = useState(0);
-  const [inProp, setInProp] = useState(false);
-  const [transitionForward, setTransitionForward] = useState(true);
+  const items = useMemo<Children>(() => validItems(children), [children]);
 
-  const items = useMemo<
-    React.ReactChild[] | React.ReactFragment[] | React.ReactPortal[]
-  >(() => validItems(children), [children]);
-
-  const slides = prepareSlides(items, currentItem, step);
-
-  const goToPrevItem = () => (
-    setCurrentItem(calculateNextItem(currentItem, step, items.length)),
-    setInProp(true),
-    setTransitionForward(false)
+  const [{ currentItem, inProp, transitionForward }, dispatch] = useReducer(
+    reducer,
+    { itemsLength: items.length, step },
+    initState
   );
-  const goToNextItem = () => (
-    setCurrentItem(calculatePrevItem(currentItem, step, items.length)),
-    setInProp(true),
-    setTransitionForward(true)
-  );
-
-  const goToItem = (itemIndex: number) => () =>
-    itemIndex !== currentItem &&
-    (setCurrentItem(itemIndex),
-    setInProp(true),
-    setTransitionForward(itemIndex > currentItem));
 
   return (
     <div className={styles.carouselContainer}>
@@ -70,18 +102,12 @@ const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
                   : transitionStylesReverse)[state],
               }}
             >
-              {slides.map((slide) => slide)}
+              {prepareSlides(items, currentItem, step).map((slide) => slide)}
             </div>
           )}
         </Transition>
       </SwitchTransition>
-      <div className={styles.carouselBtns}>
-        <button onClick={goToPrevItem}>Prev</button>
-        {Object.keys(items).map((childIndex) => (
-          <button key={childIndex} onClick={goToItem(parseInt(childIndex))} />
-        ))}
-        <button onClick={goToNextItem}>Next</button>
-      </div>
+      <Controls dispatch={dispatch} items={items} />
     </div>
   );
 };
