@@ -9,7 +9,6 @@ exports[`Carousel Renders 1`] = `
   >
     <Transition
       appear={false}
-      className="carouselSlider"
       enter={true}
       exit={true}
       in={false}
@@ -28,8 +27,15 @@ exports[`Carousel Renders 1`] = `
     </Transition>
   </SwitchTransition>
   <Controls
+    buttons={false}
+    currentItem={0}
     dispatch={[Function]}
-    items={Array []}
+    items={
+      Array [
+        false,
+      ]
+    }
+    step={1}
   />
 </div>
 `;
