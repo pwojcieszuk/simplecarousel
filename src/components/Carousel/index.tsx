@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer, useEffect } from "react";
+import React, { useMemo, useReducer, useEffect, useRef } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
 import {
@@ -84,6 +84,8 @@ const Carousel: React.FC<Props> = ({
   buttons = false,
   children,
 }) => {
+  const nodeRef = useRef(null); //https://github.com/reactjs/react-transition-group/issues/668#issuecomment-695162879
+
   const items = useMemo<Children>(
     () => prepareItems(children, { ...itemStyles, width: `${100 / step}%` }),
     [children]
@@ -103,7 +105,12 @@ const Carousel: React.FC<Props> = ({
   return (
     <div className={styles.carouselContainer}>
       <SwitchTransition>
-        <Transition key={currentItem} in={inProp} timeout={duration}>
+        <Transition
+          key={currentItem}
+          in={inProp}
+          nodeRef={nodeRef}
+          timeout={duration}
+        >
           {(state: string) => (
             <div
               className={styles.carouselSlider}
