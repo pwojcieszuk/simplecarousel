@@ -6,6 +6,10 @@ export type CarouselProps = {
   children: ReactChildren;
   step?: number;
   duration?: number;
+  itemStyles?: React.CSSProperties;
+  autoplay?: boolean;
+  autoplaySpeed?: number;
+  buttons?: boolean;
 };
 
 export type CarouselState = {
@@ -20,6 +24,8 @@ export type ControlsProps = {
   dispatch: React.Dispatch<Action>;
   items: React.ReactChild[] | React.ReactFragment[] | React.ReactPortal[];
   step: number;
+  currentItem: number;
+  buttons?: boolean;
 };
 
 export type CarouselChildren =

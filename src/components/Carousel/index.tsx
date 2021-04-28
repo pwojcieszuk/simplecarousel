@@ -1,4 +1,4 @@
-import React, { useMemo, useReducer } from "react";
+import React, { useMemo, useReducer, useEffect } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
 import {
@@ -11,7 +11,7 @@ import prepareSlides from "components/Carousel/logic/prepareSlides";
 import calculateNextItem from "components/Carousel/logic/calculateNextItem";
 import calculatePrevItem from "components/Carousel/logic/calculatePrevItem";
 
-import validItems from "components/Carousel/utils/validItems";
+import prepareItems from "components/Carousel/utils/prepareItems";
 
 import Controls from "components/Carousel/Controls";
 
@@ -74,8 +74,20 @@ const reducer = (state: State, { type, itemIndex }: Action): State => {
   }
 };
 
-const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
-  const items = useMemo<Children>(() => validItems(children), [children]);
+// eslint-disable-next-line max-lines-per-function
+const Carousel: React.FC<Props> = ({
+  step = 1,
+  duration = 300,
+  itemStyles = {},
+  autoplay = false,
+  autoplaySpeed = 3000,
+  buttons = false,
+  children,
+}) => {
+  const items = useMemo<Children>(
+    () => prepareItems(children, { ...itemStyles, width: `${100 / step}%` }),
+    [children]
+  );
 
   const [{ currentItem, inProp, transitionForward }, dispatch] = useReducer(
     reducer,
@@ -83,18 +95,18 @@ const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
     initState
   );
 
+  useEffect(() => {
+    autoplay &&
+      setTimeout(() => dispatch({ type: "goToNextItem" }), autoplaySpeed);
+  });
+
   return (
     <div className={styles.carouselContainer}>
       <SwitchTransition>
-        <Transition
-          key={currentItem}
-          in={inProp}
-          timeout={duration}
-          className={styles.carouselSlider}
-        >
+        <Transition key={currentItem} in={inProp} timeout={duration}>
           {(state: string) => (
             <div
-              className={styles.carouselItem}
+              className={styles.carouselSlider}
               style={{
                 ...defaultStyle(duration),
                 ...(transitionForward
@@ -107,7 +119,13 @@ const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
           )}
         </Transition>
       </SwitchTransition>
-      <Controls dispatch={dispatch} step={step} items={items} />
+      <Controls
+        dispatch={dispatch}
+        step={step}
+        items={items}
+        currentItem={currentItem}
+        buttons={buttons}
+      />
     </div>
   );
 };
