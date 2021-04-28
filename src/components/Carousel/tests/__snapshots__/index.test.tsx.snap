@@ -27,19 +27,9 @@ exports[`Carousel Renders 1`] = `
       <Component />
     </Transition>
   </SwitchTransition>
-  <div
-    className="carouselBtns"
-  >
-    <button
-      onClick={[Function]}
-    >
-      Prev
-    </button>
-    <button
-      onClick={[Function]}
-    >
-      Next
-    </button>
-  </div>
+  <Controls
+    dispatch={[Function]}
+    items={Array []}
+  />
 </div>
 `;

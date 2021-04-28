@@ -19,6 +19,7 @@ export type CarouselState = {
 export type ControlsProps = {
   dispatch: React.Dispatch<Action>;
   items: React.ReactChild[] | React.ReactFragment[] | React.ReactPortal[];
+  step: number;
 };
 
 export type CarouselChildren =

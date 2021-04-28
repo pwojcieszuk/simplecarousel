@@ -36,8 +36,8 @@ const initState = ({
   step,
 });
 
-const reducer = (state: State, action: Action): State => {
-  switch (action.type) {
+const reducer = (state: State, { type, itemIndex }: Action): State => {
+  switch (type) {
     case "goToPrevItem":
       return {
         ...state,
@@ -61,13 +61,13 @@ const reducer = (state: State, action: Action): State => {
         ),
       };
     case "goToItem":
-      return !action.itemIndex || action.itemIndex === state.currentItem
+      return itemIndex === undefined || itemIndex === state.currentItem
         ? { ...state }
         : {
             ...state,
             inProp: true,
-            transitionForward: action.itemIndex > state.currentItem,
-            currentItem: action.itemIndex,
+            transitionForward: itemIndex > state.currentItem,
+            currentItem: itemIndex,
           };
     default:
       throw new Error();
@@ -107,7 +107,7 @@ const Carousel: React.FC<Props> = ({ step = 1, duration = 300, children }) => {
           )}
         </Transition>
       </SwitchTransition>
-      <Controls dispatch={dispatch} items={items} />
+      <Controls dispatch={dispatch} step={step} items={items} />
     </div>
   );
 };
