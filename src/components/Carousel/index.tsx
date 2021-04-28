@@ -99,7 +99,10 @@ const Carousel: React.FC<Props> = ({
 
   useEffect(() => {
     autoplay &&
-      setTimeout(() => dispatch({ type: "goToNextItem" }), autoplaySpeed);
+      setTimeout(
+        () => dispatch({ type: "goToNextItem" }),
+        autoplaySpeed + duration
+      );
   });
 
   return (
