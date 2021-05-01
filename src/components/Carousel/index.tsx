@@ -37,7 +37,30 @@ const initState = ({
   step,
 });
 
-// eslint-disable-next-line max-lines-per-function
+const commonTransitionState = (
+  {
+    currentItem: stateCurrentItem,
+    step,
+    itemsLength,
+    ...remainingState
+  }: State,
+  transitionForward: boolean,
+  currentItem?: number
+) => ({
+  ...remainingState,
+  step,
+  itemsLength,
+  inProp: true,
+  transitionForward,
+  currentItem:
+    currentItem ||
+    (() => (transitionForward ? calculateNextItem : calculatePrevItem))()(
+      stateCurrentItem,
+      step,
+      itemsLength
+    ),
+});
+
 const reducer = (
   state: State,
   { type, itemIndex, stopAutoplay = false }: Action
@@ -45,37 +68,24 @@ const reducer = (
   switch (type) {
     case "goToPrevItem":
       return {
-        ...state,
-        inProp: true,
-        transitionForward: false,
+        ...commonTransitionState(state, false),
         stopAutoplay,
-        currentItem: calculatePrevItem(
-          state.currentItem,
-          state.step,
-          state.itemsLength
-        ),
       };
     case "goToNextItem":
       return {
-        ...state,
-        inProp: true,
-        transitionForward: true,
+        ...commonTransitionState(state, true),
         stopAutoplay,
-        currentItem: calculateNextItem(
-          state.currentItem,
-          state.step,
-          state.itemsLength
-        ),
       };
     case "goToItem":
       return itemIndex === undefined || itemIndex === state.currentItem
         ? { ...state }
         : {
-            ...state,
-            inProp: true,
+            ...commonTransitionState(
+              state,
+              itemIndex > state.currentItem,
+              itemIndex
+            ),
             stopAutoplay,
-            transitionForward: itemIndex > state.currentItem,
-            currentItem: itemIndex,
           };
     default:
       throw new Error();
