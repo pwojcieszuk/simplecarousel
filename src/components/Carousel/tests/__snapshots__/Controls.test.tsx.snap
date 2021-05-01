@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Carousel Renders 1`] = `
+<Fragment>
+  <div
+    className="carouselPrevBtn"
+    onClick={[Function]}
+  />
+  <div
+    className="carouselBtns"
+  />
+  <div
+    className="carouselNextBtn"
+    onClick={[Function]}
+  />
+</Fragment>
+`;

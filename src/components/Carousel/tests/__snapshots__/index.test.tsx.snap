@@ -26,7 +26,7 @@ exports[`Carousel Renders 1`] = `
       onExited={[Function]}
       onExiting={[Function]}
       timeout={300}
-      unmountOnExit={false}
+      unmountOnExit={true}
     >
       <Component />
     </Transition>
