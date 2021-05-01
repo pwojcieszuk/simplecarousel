@@ -1,4 +1,8 @@
-export type Action = { type: string; itemIndex?: number };
+export type Action = {
+  type: string;
+  itemIndex?: number;
+  stopAutoplay?: boolean;
+};
 
 export type ReactChildren = React.ReactChild | React.ReactChild[];
 
@@ -18,6 +22,7 @@ export type CarouselState = {
   currentItem: number;
   step: number;
   itemsLength: number;
+  stopAutoplay?: boolean;
 };
 
 export type ControlsProps = {

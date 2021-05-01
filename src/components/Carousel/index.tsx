@@ -32,17 +32,23 @@ const initState = ({
   currentItem: 0,
   inProp: false,
   transitionForward: true,
+  stopAutoplay: false,
   itemsLength,
   step,
 });
 
-const reducer = (state: State, { type, itemIndex }: Action): State => {
+// eslint-disable-next-line max-lines-per-function
+const reducer = (
+  state: State,
+  { type, itemIndex, stopAutoplay = false }: Action
+): State => {
   switch (type) {
     case "goToPrevItem":
       return {
         ...state,
         inProp: true,
         transitionForward: false,
+        stopAutoplay,
         currentItem: calculatePrevItem(
           state.currentItem,
           state.step,
@@ -54,6 +60,7 @@ const reducer = (state: State, { type, itemIndex }: Action): State => {
         ...state,
         inProp: true,
         transitionForward: true,
+        stopAutoplay,
         currentItem: calculateNextItem(
           state.currentItem,
           state.step,
@@ -66,6 +73,7 @@ const reducer = (state: State, { type, itemIndex }: Action): State => {
         : {
             ...state,
             inProp: true,
+            stopAutoplay,
             transitionForward: itemIndex > state.currentItem,
             currentItem: itemIndex,
           };
@@ -91,14 +99,14 @@ const Carousel: React.FC<Props> = ({
     [children]
   );
 
-  const [{ currentItem, inProp, transitionForward }, dispatch] = useReducer(
-    reducer,
-    { itemsLength: items.length, step },
-    initState
-  );
+  const [
+    { currentItem, inProp, transitionForward, stopAutoplay },
+    dispatch,
+  ] = useReducer(reducer, { itemsLength: items.length, step }, initState);
 
   useEffect(() => {
     autoplay &&
+      !stopAutoplay &&
       setTimeout(
         () => dispatch({ type: "goToNextItem" }),
         autoplaySpeed + duration
@@ -113,6 +121,7 @@ const Carousel: React.FC<Props> = ({
           in={inProp}
           nodeRef={nodeRef}
           timeout={duration}
+          unmountOnExit
         >
           {(state: string) => (
             <div
