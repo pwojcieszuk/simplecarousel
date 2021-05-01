@@ -14,6 +14,11 @@ exports[`Carousel Renders 1`] = `
       in={false}
       key="0"
       mountOnEnter={false}
+      nodeRef={
+        Object {
+          "current": null,
+        }
+      }
       onEnter={[Function]}
       onEntered={[Function]}
       onEntering={[Function]}

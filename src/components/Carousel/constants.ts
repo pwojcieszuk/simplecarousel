@@ -8,10 +8,10 @@ export const defaultStyle = (duration: number): React.CSSProperties => ({
 });
 
 export const transitionStylesForward = {
-  entering: { transform: cssTranslate("100%") },
-  entered: { transform: cssTranslate(0) },
-  exiting: { transform: cssTranslate(0) },
-  exited: { transform: cssTranslate("-100%") },
+  entering: { transform: cssTranslate(0) },
+  entered: { transform: cssTranslate("-100%") },
+  exiting: { transform: cssTranslate("-100%") },
+  exited: { transform: cssTranslate("-200%") },
 } as { [key: string]: React.CSSProperties };
 
 export const transitionStylesReverse = {

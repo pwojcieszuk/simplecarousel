@@ -124,7 +124,9 @@ const Carousel: React.FC<Props> = ({
                   : transitionStylesReverse)[state],
               }}
             >
-              {prepareSlides(items, currentItem, step).map((slide) => slide)}
+              {prepareSlides(items, currentItem, step, transitionForward).map(
+                (slide) => slide
+              )}
             </div>
           )}
         </Transition>
