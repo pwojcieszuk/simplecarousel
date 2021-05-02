@@ -16,4 +16,10 @@ describe("prepareSlides", () => {
   it("returns the current item plus step next when moving forwards and looping", () => {
     expect(prepareSlides(slides, 7, 3, false)).toEqual([7, 0, 1, 2, 3, 4]);
   });
+  it("returns the current item plus step next when moving forwards and looping without extra values", () => {
+    expect(prepareSlides(slides, 4, 3, true)).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+  it("returns the current item plus step next when moving backwards and looping without extra values", () => {
+    expect(prepareSlides(slides, 4, 3, false)).toEqual([4, 5, 6, 7, 0, 1]);
+  });
 });

@@ -13,7 +13,7 @@ const demoImages = importAll(
 ReactDOM.render(
   <React.StrictMode>
     <div className={styles.carouselContainer}>
-      <Carousel step={3} autoplay buttons>
+      <Carousel step={3} buttons>
         {demoImages.map((image: string, idx: number) => (
           <img key={idx} src={image} />
         ))}
