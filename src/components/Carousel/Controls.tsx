@@ -13,7 +13,7 @@ const Controls: React.FC<Props> = ({
   <>
     <div
       className={styles.carouselPrevBtn}
-      onClick={() => dispatch({ type: "goToPrevItem", stopAutoplay: true })}
+      onClick={() => dispatch({ type: "goToPrevItem" })}
     />
     <div className={styles.carouselBtns}>
       {buttons &&
@@ -27,7 +27,6 @@ const Controls: React.FC<Props> = ({
               dispatch({
                 type: "goToItem",
                 itemIndex: childIndex,
-                stopAutoplay: true,
               })
             }
             className={
@@ -38,7 +37,7 @@ const Controls: React.FC<Props> = ({
     </div>
     <div
       className={styles.carouselNextBtn}
-      onClick={() => dispatch({ type: "goToNextItem", stopAutoplay: true })}
+      onClick={() => dispatch({ type: "goToNextItem" })}
     />
   </>
 );

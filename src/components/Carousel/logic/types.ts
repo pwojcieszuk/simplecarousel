@@ -1,7 +1,6 @@
 export type Action = {
   type: string;
   itemIndex?: number;
-  stopAutoplay?: boolean;
   touchPosition?: number | null;
   touchMove?: number | null;
 };
@@ -27,6 +26,12 @@ export type CarouselState = {
   stopAutoplay?: boolean;
   touchPosition?: number | null;
   touchMove?: number | null;
+};
+
+export type TransitionOptions = {
+  transitionForward: boolean;
+  stopAutoplay?: boolean;
+  currentItem?: number;
 };
 
 export type ControlsProps = {

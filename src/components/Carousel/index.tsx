@@ -1,4 +1,3 @@
-/* eslint-disable sonarjs/cognitive-complexity */
 import React, { useMemo, useReducer, useEffect, useRef } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
@@ -23,6 +22,7 @@ import {
   CarouselProps as Props,
   CarouselState as State,
   CarouselChildren as Children,
+  TransitionOptions,
 } from "components/Carousel/logic/types";
 
 const initState = ({
@@ -42,16 +42,14 @@ const initState = ({
   touchMove: null,
 });
 
-const commonTransitionState = (
+const goToItemState = (
   {
     currentItem: stateCurrentItem,
     step,
     itemsLength,
     ...remainingState
   }: State,
-  transitionForward: boolean,
-  stopAutoplay: boolean,
-  currentItem?: number
+  { transitionForward, stopAutoplay = true, currentItem }: TransitionOptions
 ) => ({
   ...remainingState,
   step,
@@ -68,25 +66,24 @@ const commonTransitionState = (
     ),
 });
 
-// eslint-disable-next-line max-lines-per-function
-const reducer = (
-  state: State,
-  { type, itemIndex, stopAutoplay = false }: Action
-): State => {
+const reducer = (state: State, { type, itemIndex }: Action): State => {
   switch (type) {
     case "goToPrevItem":
-      return commonTransitionState(state, false, stopAutoplay);
+      return goToItemState(state, { transitionForward: false });
     case "goToNextItem":
-      return commonTransitionState(state, true, stopAutoplay);
+      return goToItemState(state, { transitionForward: true });
+    case "autoPlay":
+      return goToItemState(state, {
+        transitionForward: true,
+        stopAutoplay: false,
+      });
     case "goToItem":
       return itemIndex === undefined || itemIndex === state.currentItem
         ? { ...state }
-        : commonTransitionState(
-            state,
-            itemIndex > state.currentItem,
-            stopAutoplay,
-            itemIndex
-          );
+        : goToItemState(state, {
+            transitionForward: itemIndex > state.currentItem,
+            currentItem: itemIndex,
+          });
     default:
       throw new Error();
   }
@@ -118,7 +115,7 @@ const Carousel: React.FC<Props> = ({
     autoplay &&
       !stopAutoplay &&
       setTimeout(
-        () => dispatch({ type: "goToNextItem" }),
+        () => dispatch({ type: "autoPlay" }),
         autoplaySpeed + duration
       );
   });
