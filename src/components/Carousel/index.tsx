@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 import React, { useMemo, useReducer, useEffect, useRef } from "react";
 import { Transition, SwitchTransition } from "react-transition-group";
 import styles from "components/Carousel/carousel.module.scss";
@@ -28,13 +29,15 @@ const initState = ({
 }: {
   itemsLength: number;
   step: number;
-}) => ({
+}): State => ({
   currentItem: 0,
   inProp: false,
   transitionForward: true,
   stopAutoplay: false,
   itemsLength,
   step,
+  touchPosition: null,
+  touchMove: null,
 });
 
 const commonTransitionState = (
@@ -61,9 +64,10 @@ const commonTransitionState = (
     ),
 });
 
+// eslint-disable-next-line max-lines-per-function
 const reducer = (
   state: State,
-  { type, itemIndex, stopAutoplay = false }: Action
+  { type, itemIndex, stopAutoplay = false, touchPosition, touchMove }: Action
 ): State => {
   switch (type) {
     case "goToPrevItem":
@@ -87,6 +91,27 @@ const reducer = (
             ),
             stopAutoplay,
           };
+    case "touchStart":
+      return { ...state, touchPosition };
+    case "touchMove":
+      return { ...state, touchMove };
+    case "touchEnd":
+      if (!state.touchPosition || !state.touchMove) return { ...state };
+      const swiped = state.touchPosition - state.touchMove;
+      if (swiped > 5)
+        return {
+          ...commonTransitionState(state, true),
+          stopAutoplay,
+          touchPosition: null,
+          touchMove: null,
+        };
+      if (swiped < -5)
+        return {
+          ...commonTransitionState(state, false),
+          stopAutoplay,
+          touchPosition: null,
+          touchMove: null,
+        };
     default:
       throw new Error();
   }
@@ -142,6 +167,19 @@ const Carousel: React.FC<Props> = ({
                   ? transitionStylesForward
                   : transitionStylesReverse)[state],
               }}
+              onTouchStart={(e) =>
+                dispatch({
+                  type: "touchStart",
+                  touchPosition: e.touches[0].clientX,
+                })
+              }
+              onTouchMove={(e) =>
+                dispatch({
+                  type: "touchMove",
+                  touchMove: e.touches[0].clientX,
+                })
+              }
+              onTouchEnd={() => dispatch({ type: "touchEnd" })}
             >
               {prepareSlides(items, currentItem, step, transitionForward).map(
                 (slide) => slide
