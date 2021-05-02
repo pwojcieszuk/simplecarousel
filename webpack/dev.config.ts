@@ -53,6 +53,7 @@ const config: webpack.Configuration = {
     alias: {
       components: path.resolve(__dirname, "../src/components/"),
       assets: path.resolve(__dirname, "../assets/"),
+      hooks: path.resolve(__dirname, "../src/hooks/"),
     },
     extensions: [".tsx", ".ts", ".js"],
   },

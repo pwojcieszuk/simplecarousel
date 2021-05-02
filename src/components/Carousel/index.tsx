@@ -16,6 +16,8 @@ import prepareItems from "components/Carousel/utils/prepareItems";
 
 import Controls from "components/Carousel/Controls";
 
+import useSwipe from "hooks/useSwipe";
+
 import {
   Action,
   CarouselProps as Props,
@@ -48,6 +50,7 @@ const commonTransitionState = (
     ...remainingState
   }: State,
   transitionForward: boolean,
+  stopAutoplay: boolean,
   currentItem?: number
 ) => ({
   ...remainingState,
@@ -55,6 +58,7 @@ const commonTransitionState = (
   itemsLength,
   inProp: true,
   transitionForward,
+  stopAutoplay,
   currentItem:
     currentItem ||
     (() => (transitionForward ? calculateNextItem : calculatePrevItem))()(
@@ -67,51 +71,22 @@ const commonTransitionState = (
 // eslint-disable-next-line max-lines-per-function
 const reducer = (
   state: State,
-  { type, itemIndex, stopAutoplay = false, touchPosition, touchMove }: Action
+  { type, itemIndex, stopAutoplay = false }: Action
 ): State => {
   switch (type) {
     case "goToPrevItem":
-      return {
-        ...commonTransitionState(state, false),
-        stopAutoplay,
-      };
+      return commonTransitionState(state, false, stopAutoplay);
     case "goToNextItem":
-      return {
-        ...commonTransitionState(state, true),
-        stopAutoplay,
-      };
+      return commonTransitionState(state, true, stopAutoplay);
     case "goToItem":
       return itemIndex === undefined || itemIndex === state.currentItem
         ? { ...state }
-        : {
-            ...commonTransitionState(
-              state,
-              itemIndex > state.currentItem,
-              itemIndex
-            ),
+        : commonTransitionState(
+            state,
+            itemIndex > state.currentItem,
             stopAutoplay,
-          };
-    case "touchStart":
-      return { ...state, touchPosition };
-    case "touchMove":
-      return { ...state, touchMove };
-    case "touchEnd":
-      if (!state.touchPosition || !state.touchMove) return { ...state };
-      const swiped = state.touchPosition - state.touchMove;
-      if (swiped > 5)
-        return {
-          ...commonTransitionState(state, true),
-          stopAutoplay,
-          touchPosition: null,
-          touchMove: null,
-        };
-      if (swiped < -5)
-        return {
-          ...commonTransitionState(state, false),
-          stopAutoplay,
-          touchPosition: null,
-          touchMove: null,
-        };
+            itemIndex
+          );
     default:
       throw new Error();
   }
@@ -148,6 +123,11 @@ const Carousel: React.FC<Props> = ({
       );
   });
 
+  const swipeHandlers = useSwipe({
+    actionForward: () => dispatch({ type: "goToNextItem" }),
+    actionBackward: () => dispatch({ type: "goToPrevItem" }),
+  });
+
   return (
     <div className={styles.carouselContainer}>
       <SwitchTransition>
@@ -167,19 +147,7 @@ const Carousel: React.FC<Props> = ({
                   ? transitionStylesForward
                   : transitionStylesReverse)[state],
               }}
-              onTouchStart={(e) =>
-                dispatch({
-                  type: "touchStart",
-                  touchPosition: e.touches[0].clientX,
-                })
-              }
-              onTouchMove={(e) =>
-                dispatch({
-                  type: "touchMove",
-                  touchMove: e.touches[0].clientX,
-                })
-              }
-              onTouchEnd={() => dispatch({ type: "touchEnd" })}
+              {...swipeHandlers}
             >
               {prepareSlides(items, currentItem, step, transitionForward).map(
                 (slide) => slide
