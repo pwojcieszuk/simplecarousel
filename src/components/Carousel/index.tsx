@@ -28,9 +28,11 @@ import {
 const initState = ({
   itemsLength,
   step,
+  infinite,
 }: {
   itemsLength: number;
   step: number;
+  infinite: boolean;
 }): State => ({
   currentItem: 0,
   inProp: false,
@@ -38,6 +40,7 @@ const initState = ({
   stopAutoplay: false,
   itemsLength,
   step,
+  infinite,
   touchPosition: null,
   touchMove: null,
 });
@@ -66,15 +69,49 @@ const goToItemState = (
     ),
 });
 
+const stopAtStart = ({
+  infinite,
+  currentItem,
+}: {
+  infinite: boolean;
+  currentItem: number;
+}) => !infinite && currentItem === 0;
+
+const stopAtEnd = ({
+  infinite,
+  currentItem,
+  step,
+  itemsLength,
+}: {
+  infinite: boolean;
+  currentItem: number;
+  step: number;
+  itemsLength: number;
+}) => !infinite && currentItem + step >= itemsLength;
+
+const detectTransitionDirection = ({
+  transitionForward: prevTransitionForward,
+  ...state
+}: State): boolean => {
+  if (prevTransitionForward && stopAtEnd(state)) return false;
+  if (!prevTransitionForward && stopAtStart(state)) return true;
+  return prevTransitionForward;
+};
+
+// eslint-disable-next-line sonarjs/cognitive-complexity
 const reducer = (state: State, { type, itemIndex }: Action): State => {
   switch (type) {
     case "goToPrevItem":
-      return goToItemState(state, { transitionForward: false });
+      return stopAtStart(state)
+        ? { ...state }
+        : goToItemState(state, { transitionForward: false });
     case "goToNextItem":
-      return goToItemState(state, { transitionForward: true });
+      return stopAtEnd(state)
+        ? { ...state }
+        : goToItemState(state, { transitionForward: true });
     case "autoPlay":
       return goToItemState(state, {
-        transitionForward: true,
+        transitionForward: state.infinite || detectTransitionDirection(state),
         stopAutoplay: false,
       });
     case "goToItem":
@@ -97,6 +134,7 @@ const Carousel: React.FC<Props> = ({
   autoplay = false,
   autoplaySpeed = 3000,
   buttons = false,
+  infinite = false,
   children,
 }) => {
   const nodeRef = useRef(null); //https://github.com/reactjs/react-transition-group/issues/668#issuecomment-695162879
@@ -109,7 +147,11 @@ const Carousel: React.FC<Props> = ({
   const [
     { currentItem, inProp, transitionForward, stopAutoplay },
     dispatch,
-  ] = useReducer(reducer, { itemsLength: items.length, step }, initState);
+  ] = useReducer(
+    reducer,
+    { itemsLength: items.length, step, infinite },
+    initState
+  );
 
   useEffect(() => {
     autoplay &&
