@@ -42,6 +42,10 @@
 
 .carouselPrevBtn,
 .carouselNextBtn {
+  @media (hover: none) {
+    display: none;
+  }
+
   height: 100%;
   width: 5rem;
   position: absolute;
