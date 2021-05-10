@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 
 type SwipeCallbacks = {
   actionForward: (...args: unknown[]) => void;
@@ -13,36 +13,14 @@ type SwipeHandlers = {
   onTouchEnd: () => void;
 };
 
-const initialState = {
-  touchPosition: null,
-  touchMove: null,
-  touchEnd: false,
+type TouchEventData = {
+  touchPosition: number | null;
+  touchMove?: number | null;
 };
 
-const reducer = (
-  state: {
-    touchPosition?: number | null;
-    touchMove?: number | null;
-    touchEnd: boolean;
-  },
-  {
-    type,
-    touchPosition,
-    touchMove,
-  }: { type: string; touchPosition?: number | null; touchMove?: number | null }
-) => {
-  switch (type) {
-    case "touchStart":
-      return { ...state, touchPosition };
-    case "touchMove":
-      return { ...state, touchMove };
-    case "touchEnd":
-      return { ...state, touchEnd: true };
-    case "reset":
-      return { ...initialState };
-    default:
-      throw new Error();
-  }
+const initTouchEventData: TouchEventData = {
+  touchPosition: null,
+  touchMove: null,
 };
 
 const swipeStep = 5;
@@ -51,36 +29,29 @@ export default ({
   actionForward,
   actionBackward,
 }: SwipeCallbacks): SwipeHandlers => {
-  const [{ touchEnd, touchMove, touchPosition }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const touchEventData = useRef<TouchEventData>(initTouchEventData);
+  const [touchEnd, setTouchEnd] = useState(false);
 
   useEffect(() => {
-    if (!touchEnd || !touchPosition || !touchMove) return;
+    const { touchPosition, touchMove } = touchEventData.current;
 
-    const swiped = touchPosition - touchMove;
+    if (!touchEnd || touchPosition === null || touchMove === null) return;
+
+    const swiped = Number(touchPosition) - Number(touchMove); //https://github.com/microsoft/TypeScript/issues/37178
 
     if (swiped > swipeStep) actionForward();
 
     if (swiped < -swipeStep) actionBackward();
 
-    dispatch({ type: "reset" });
-  }, [touchEnd, touchMove, touchPosition]);
+    touchEventData.current = { ...initTouchEventData };
+    setTouchEnd(false);
+  }, [touchEnd]);
 
   return {
     onTouchStart: (e: SwipeEvent) =>
-      dispatch({
-        type: "touchStart",
-        touchPosition: e.touches[0].clientX,
-      }),
-
+      (touchEventData.current.touchPosition = e.touches[0].clientX),
     onTouchMove: (e: SwipeEvent) =>
-      dispatch({
-        type: "touchMove",
-        touchMove: e.touches[0].clientX,
-      }),
-
-    onTouchEnd: () => dispatch({ type: "touchEnd" }),
+      (touchEventData.current.touchMove = e.touches[0].clientX),
+    onTouchEnd: () => setTouchEnd(true),
   };
 };
