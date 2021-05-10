@@ -2,6 +2,7 @@ import React from "react";
 import styles from "components/Carousel/carousel.module.scss";
 import { ControlsProps as Props } from "components/Carousel/logic/types";
 import prepareButtons from "components/Carousel/logic/prepareButtons";
+import { ACTIONS_TYPES } from "components/Carousel/constants";
 
 const Controls: React.FC<Props> = ({
   dispatch,
@@ -13,7 +14,7 @@ const Controls: React.FC<Props> = ({
   <>
     <div
       className={styles.carouselPrevBtn}
-      onClick={() => dispatch({ type: "goToPrevItem" })}
+      onClick={() => dispatch({ type: ACTIONS_TYPES["GO_TO_PREV_ITEM"] })}
     />
     <div className={styles.carouselBtns}>
       {buttons &&
@@ -25,7 +26,7 @@ const Controls: React.FC<Props> = ({
             key={childIndex}
             onClick={() =>
               dispatch({
-                type: "goToItem",
+                type: ACTIONS_TYPES["GO_TO_ITEM_AT_INDEX"],
                 itemIndex: childIndex,
               })
             }
@@ -37,7 +38,7 @@ const Controls: React.FC<Props> = ({
     </div>
     <div
       className={styles.carouselNextBtn}
-      onClick={() => dispatch({ type: "goToNextItem" })}
+      onClick={() => dispatch({ type: ACTIONS_TYPES["GO_TO_NEXT_ITEM"] })}
     />
   </>
 );

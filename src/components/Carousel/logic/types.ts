@@ -31,7 +31,6 @@ export type CarouselState = {
 
 export type TransitionOptions = {
   transitionForward: boolean;
-  stopAutoplay?: boolean;
   currentItem?: number;
 };
 
