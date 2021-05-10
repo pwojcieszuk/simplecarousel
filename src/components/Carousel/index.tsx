@@ -69,8 +69,8 @@ const Carousel: React.FC<Props> = ({
   });
 
   const swipeHandlers = useSwipe({
-    actionForward: () => dispatch({ type: "goToNextItem" }),
-    actionBackward: () => dispatch({ type: "goToPrevItem" }),
+    actionForward: () => dispatch({ type: ACTIONS_TYPES["GO_TO_NEXT_ITEM"] }),
+    actionBackward: () => dispatch({ type: ACTIONS_TYPES["GO_TO_PREV_ITEM"] }),
   });
 
   return (

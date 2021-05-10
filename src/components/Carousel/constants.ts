@@ -28,7 +28,7 @@ export const TRANSITION_STYLES_REVERSE = {
 
 export const ACTIONS_TYPES = {
   GO_TO_PREV_ITEM: "goToPrevItem",
-  GO_TO_NEXT_ITEM: "goToPrevItem",
+  GO_TO_NEXT_ITEM: "goToNextItem",
   AUTO_PLAY: "autoPlay",
   GO_TO_ITEM_AT_INDEX: "goToItemAtIndex",
 };
