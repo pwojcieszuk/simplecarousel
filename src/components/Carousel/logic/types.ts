@@ -24,7 +24,6 @@ export type CarouselState = {
   currentItem: number;
   step: number;
   itemsLength: number;
-  stopAutoplay?: boolean;
   touchPosition?: number | null;
   touchMove?: number | null;
   infinite: boolean;

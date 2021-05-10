@@ -37,7 +37,6 @@ const initState = ({
   currentItem: 0,
   inProp: false,
   transitionForward: true,
-  stopAutoplay: false,
   itemsLength,
   step,
   infinite,
@@ -52,14 +51,13 @@ const goToItemState = (
     itemsLength,
     ...remainingState
   }: State,
-  { transitionForward, stopAutoplay = true, currentItem }: TransitionOptions
+  { transitionForward, currentItem }: TransitionOptions
 ) => ({
   ...remainingState,
   step,
   itemsLength,
   inProp: true,
   transitionForward,
-  stopAutoplay,
   currentItem:
     currentItem ||
     (() => (transitionForward ? calculateNextItem : calculatePrevItem))()(
@@ -144,22 +142,21 @@ const Carousel: React.FC<Props> = ({
     [children]
   );
 
-  const [
-    { currentItem, inProp, transitionForward, stopAutoplay },
-    dispatch,
-  ] = useReducer(
+  const [{ currentItem, inProp, transitionForward }, dispatch] = useReducer(
     reducer,
     { itemsLength: items.length, step, infinite },
     initState
   );
 
   useEffect(() => {
-    autoplay &&
-      !stopAutoplay &&
-      setTimeout(
-        () => dispatch({ type: "autoPlay" }),
-        autoplaySpeed + duration
-      );
+    if (!autoplay) return;
+
+    const autoplayTimeoutId = setTimeout(
+      () => dispatch({ type: "autoPlay" }),
+      autoplaySpeed + duration
+    );
+
+    return () => clearTimeout(autoplayTimeoutId);
   });
 
   const swipeHandlers = useSwipe({
