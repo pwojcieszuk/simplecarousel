@@ -15,7 +15,7 @@ ReactDOM.render(
     <div className={styles.carouselContainer}>
       <Carousel step={3} autoplay infinite buttons>
         {demoImages.map((image: string, idx: number) => (
-          <img key={idx} src={image} />
+          <img key={idx} src={image} alt={`image-${idx}`} />
         ))}
       </Carousel>
     </div>
