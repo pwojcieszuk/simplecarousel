@@ -34,11 +34,19 @@ const config: webpack.Configuration = {
         test: /\.(scss|css)$/,
         use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
       },
+      {
+        test: /\.(png|jpe?g|svg)$/,
+        use: {
+          loader: "url-loader",
+        },
+      },
     ],
   },
   resolve: {
     alias: {
       components: path.resolve(__dirname, "../src/components/"),
+      assets: path.resolve(__dirname, "../assets/"),
+      hooks: path.resolve(__dirname, "../src/hooks/"),
     },
     extensions: [".tsx", ".ts", ".js"],
   },
