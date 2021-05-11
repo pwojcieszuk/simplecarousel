@@ -2,7 +2,8 @@
   "name": "simplecarousel",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/components/carousel/index.tsx",
+  "main": "index.tsx",
+  "engines" : { "npm" : "~14.16.1" },
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
