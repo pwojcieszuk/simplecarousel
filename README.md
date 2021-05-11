@@ -36,7 +36,7 @@ const myCarousel = () => (
 
 ## The _<Carousel>_ components' options:
 
-Please note, that `simplecarousel` uses `typescrtipt` - remember about using proper types with parameters. E. g., `duration = {300} //number - correct`, **NOT** `~~duration = "300"~~ //string - incorrect`
+Please note, that `simplecarousel` uses `typescrtipt` - remember about using proper types with parameters. E. g., `duration = {300} //number - correct`, **NOT** `duration = "300" //string - incorrect`
 
 | Option name   | Descripttion                                             | Default | Type                |
 | ------------- | -------------------------------------------------------- | ------- | ------------------- |
