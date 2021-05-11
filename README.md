@@ -55,9 +55,8 @@ Please note, that `simplecarousel` uses `typescrtipt` - remember about using pro
 
 ## Final remarks and todos list
 
-- The carousel is pretty basic and could definitely be improved. It has not been extensively tested over an exhaustive list of different browseres and devices, nor for any edge cases. Maybe it happens someday.
-
+- The carousel is pretty basic and could definitely be improved. It has not been extensively tested over an exhaustive list of different browseres and devices, nor for any edge cases. Maybe it happens someday
 - It was built locally based on node version 14 (current stable version), some depndencies might need attention in other node versions
 - webpack prod build is not optimized, it could use some love (e.g. tree shaking, webpack-merge, code splitting)
-- it is not a proper package - it can be used as one using github dependency with some effort, but to become a real importable package it could use some more love, maybe it will get it one day
-- tests focus on logic, for components only some simple snapshot tests were prepared. As most of the logic is separated from the component code, this should be enough, at least until any bugs get discovered. This could have alo be given more love, maybe it happens in future
+- It is not a proper package - it can be used as one using github dependency with some effort, but to become a real importable package it could use some more love, maybe it will get it one day
+- Tests focus on logic, for components only some simple snapshot tests were prepared. As most of the logic is separated from the component code, this should be enough, at least until any bugs get discovered. This could have alo be given more love, maybe it happens in future
